@@ -3,71 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Metronome</title>
+    <title>Login</title>
     <style>
-        body { font-family: Arial, sans-serif; text-align: center; margin: 0; padding: 0; background: #f5f5f5; }
-        .container { width: 90%; max-width: 400px; margin: 20px auto; padding: 20px; background: white; border-radius: 10px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); }
-        .controls label, .controls select, .controls input { display: block; width: 100%; margin: 5px 0; font-size: 16px; }
-        button { width: 100%; padding: 10px; margin-top: 10px; font-size: 18px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
-        button:hover { background: #0056b3; }
-        .beat-indicator { display: flex; justify-content: center; margin-top: 20px; }
-        .beat { width: 20px; height: 20px; margin: 5px; border-radius: 50%; background: lightgray; }
-        .active { background: red; }
-        .hidden { display: none; }
+        #loading {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+        #loading .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-left-color: #000;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
-
-    <div id="authContainer" class="container">
-        <h2>Enter Password</h2>
-        <input type="password" id="password" placeholder="Password">
-        <button onclick="checkPassword()">Submit</button>
-        <p id="authMessage" style="color: red;"></p>
+    <h2>Login</h2>
+    <form id="login-form">
+        <label for="password">Enter Password:</label>
+        <input type="password" id="password" required>
+        <button type="submit">Login</button>
+    </form>
+    <div id="loading">
+        <span class="spinner"></span>
+        <p>Logging in...</p>
     </div>
-
-    <div id="appContainer" class="container hidden">
-        <h1>Metronome</h1>
-        
-        <div class="controls">
-            <label for="tempo">Tempo (BPM):</label>
-            <input type="number" id="tempo" min="30" max="300">
-            
-            <label for="beats">Beats per Measure:</label>
-            <input type="number" id="beats" min="1" max="12">
-            
-            <label for="subdivision">Subdivision:</label>
-            <select id="subdivision">
-                <option value="1">Quarter Notes</option>
-                <option value="2">Eighth Notes</option>
-                <option value="3">Triplets</option>
-                <option value="4">Sixteenth Notes</option>
-            </select>
-            
-            <label for="polyrhythm">Polyrhythm:</label>
-            <select id="polyrhythm">
-                <option value="none">None</option>
-                <option value="3:2">3:2</option>
-                <option value="4:3">4:3</option>
-                <option value="5:4">5:4</option>
-            </select>
-
-            <label for="increase-tempo">Increase Tempo Every:</label>
-            <input type="number" id="increase-tempo" min="1" max="20"> measures
-
-            <label for="increase-amount">Increase BPM by:</label>
-            <input type="number" id="increase-amount" min="1" max="10">
-        </div>
-
-        <button id="startStop">Start</button>
-        <button onclick="saveSettings()">Save Settings</button>
-
-        <div class="beat-indicator" id="beatIndicator"></div>
-    </div>
-
-    <script src="metronome.js"></script> 
-
 </body>
 </html>
-
-
-
