@@ -1,82 +1,73 @@
-// Metronome Code with Updates
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Metronome</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; margin: 0; padding: 0; background: #f5f5f5; }
+        .container { width: 90%; max-width: 400px; margin: 20px auto; padding: 20px; background: white; border-radius: 10px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); }
+        .controls label, .controls select, .controls input { display: block; width: 100%; margin: 5px 0; font-size: 16px; }
+        button { width: 100%; padding: 10px; margin-top: 10px; font-size: 18px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        .beat-indicator { display: flex; justify-content: center; margin-top: 20px; }
+        .beat { width: 20px; height: 20px; margin: 5px; border-radius: 50%; background: lightgray; }
+        .active { background: red; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
 
-document.addEventListener("DOMContentLoaded", function () {
-    const password = "mikemetronome";
-    
-    // Ask for password before showing the metronome
-    const userPassword = prompt("Enter password to access the metronome:");
-    if (userPassword !== password) {
-        alert("Incorrect password. Access denied.");
-        document.body.innerHTML = ""; // Clears the page if wrong password
-        return;
-    }
+    <div id="authContainer" class="container">
+        <h2>Enter Password</h2>
+        <input type="password" id="password" placeholder="Password">
+        <button onclick="checkPassword()">Submit</button>
+        <p id="authMessage" style="color: red;"></p>
+    </div>
 
-    document.body.style.display = "block";
+    <div id="appContainer" class="container hidden">
+        <h1>Metronome</h1>
+        
+        <div class="controls">
+            <label for="tempo">Tempo (BPM):</label>
+            <input type="number" id="tempo" min="30" max="300">
+            
+            <label for="beats">Beats per Measure:</label>
+            <input type="number" id="beats" min="1" max="12">
+            
+            <label for="subdivision">Subdivision:</label>
+            <select id="subdivision">
+                <option value="1">Quarter Notes</option>
+                <option value="2">Eighth Notes</option>
+                <option value="3">Triplets</option>
+                <option value="4">Sixteenth Notes</option>
+            </select>
+            
+            <label for="polyrhythm">Polyrhythm:</label>
+            <select id="polyrhythm">
+                <option value="none">None</option>
+                <option value="3:2">3:2</option>
+                <option value="4:3">4:3</option>
+                <option value="5:4">5:4</option>
+            </select>
 
-    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    let isPlaying = false;
-    let currentBeat = 0;
-    let tempo = 120;
-    let beatsPerMeasure = 4;
-    let noteValue = 4;
-    let polyrhythmNumerator = 3;
-    let polyrhythmDenominator = 2;
-    let sounds = {
-        "click": "click.wav",
-        "woodblock": "woodblock.wav",
-        "beep": "beep.wav",
-        "clave": "clave.wav",
-        "hihat": "hihat.wav"
-    };
-    let selectedSound = "click";
+            <label for="increase-tempo">Increase Tempo Every:</label>
+            <input type="number" id="increase-tempo" min="1" max="20"> measures
 
-    // Ensure elements exist before accessing them
-    const tempoInput = document.getElementById("tempo");
-    const beatsInput = document.getElementById("beats");
-    const noteValueInput = document.getElementById("noteValue");
-    const soundSelect = document.getElementById("sound");
-    const polyrhythmInputNum = document.getElementById("polyNum");
-    const polyrhythmInputDen = document.getElementById("polyDen");
+            <label for="increase-amount">Increase BPM by:</label>
+            <input type="number" id="increase-amount" min="1" max="10">
+        </div>
 
-    function playMetronome() {
-        if (!isPlaying) {
-            isPlaying = true;
-            scheduleBeats();
-        }
-    }
+        <button id="startStop">Start</button>
+        <button onclick="saveSettings()">Save Settings</button>
 
-    function stopMetronome() {
-        isPlaying = false;
-    }
+        <div class="beat-indicator" id="beatIndicator"></div>
+    </div>
 
-    function scheduleBeats() {
-        if (!isPlaying) return;
-        const interval = (60 / tempo) * 1000;
-        playClick();
-        currentBeat = (currentBeat + 1) % beatsPerMeasure;
-        setTimeout(scheduleBeats, interval);
-    }
+    <script src="metronome.js"></script> 
 
-    function playClick() {
-        let sound = new Audio(sounds[selectedSound]);
-        sound.play();
-    }
+</body>
+</html>
 
-    // Update settings live
-    [tempoInput, beatsInput, noteValueInput, soundSelect, polyrhythmInputNum, polyrhythmInputDen].forEach(input => {
-        input.addEventListener("input", () => {
-            tempo = parseInt(tempoInput.value);
-            beatsPerMeasure = parseInt(beatsInput.value);
-            noteValue = parseInt(noteValueInput.value);
-            selectedSound = soundSelect.value;
-            polyrhythmNumerator = parseInt(polyrhythmInputNum.value);
-            polyrhythmDenominator = parseInt(polyrhythmInputDen.value);
-        });
-    });
 
-    // UI Adjustments for Time Signature
-    beatsInput.min = 1;
-    noteValueInput.min = 1;
-    beatsInput.max = 32;
-    noteValueInput.max = 32;
-});
+
