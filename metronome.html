@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Metronome</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; margin: 0; padding: 0; background: #f5f5f5; }
+        .container { width: 90%; max-width: 400px; margin: 20px auto; padding: 20px; background: white; border-radius: 10px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); }
+        .controls label, .controls select, .controls input { display: block; width: 100%; margin: 5px 0; font-size: 16px; }
+        button { width: 100%; padding: 10px; margin-top: 10px; font-size: 18px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        .beat-indicator { display: flex; justify-content: center; margin-top: 20px; }
+        .beat { width: 20px; height: 20px; margin: 5px; border-radius: 50%; background: lightgray; }
+        .active { background: red; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+    <div id="authContainer" class="container">
+        <h2>Enter Password</h2>
+        <input type="password" id="password" placeholder="Password">
+        <button onclick="checkPassword()">Submit</button>
+        <p id="authMessage" style="color: red;"></p>
+    </div>
+
+    <div id="appContainer" class="container hidden">
+        <h1>Metronome</h1>
+        
+        <div class="controls">
+            <label for="tempo">Tempo (BPM):</label>
+            <input type="number" id="tempo" min="30" max="300">
+            
+            <label for="beats">Beats per Measure:</label>
+            <input type="number" id="beats" min="1" max="12">
+            
+            <label for="subdivision">Subdivision:</label>
+            <select id="subdivision">
+                <option value="1">Quarter Notes</option>
+                <option value="2">Eighth Notes</option>
+                <option value="3">Triplets</option>
+                <option value="4">Sixteenth Notes</option>
+            </select>
+            
+            <label for="polyrhythm">Polyrhythm:</label>
+            <select id="polyrhythm">
+                <option value="none">None</option>
+                <option value="3:2">3:2</option>
+                <option value="4:3">4:3</option>
+                <option value="5:4">5:4</option>
+            </select>
+
+            <label for="increase-tempo">Increase Tempo Every:</label>
+            <input type="number" id="increase-tempo" min="1" max="20"> measures
+
+            <label for="increase-amount">Increase BPM by:</label>
+            <input type="number" id="increase-amount" min="1" max="10">
+        </div>
+
+        <button id="startStop">Start</button>
+        <button onclick="saveSettings()">Save Settings</button>
+
+        <div class="beat-indicator" id="beatIndicator"></div>
+    </div>
+
+    <script>
+        const PASSWORD = "yourpassword";  // Change this password as needed
+
+        function checkPassword() {
+            let enteredPassword = document.getElementById("password").value;
+            if (enteredPassword === PASSWORD) {
+                document.getElementById("authContainer").classList.add("hidden");
+                document.getElementById("appContainer").classList.remove("hidden");
+                loadSettings();
+            } else {
+                document.getElementById("authMessage").innerText = "Incorrect password!";
+            }
+        }
+
+        function saveSettings() {
+            const settings = {
+                tempo: document.getElementById("tempo").value,
+                beats: document.getElementById("beats").value,
+                subdivision: document.getElementById("subdivision").value,
+                polyrhythm: document.getElementById("polyrhythm").value,
+                increaseTempo: document.getElementById("increase-tempo").value,
+                increaseAmount: document.getElementById("increase-amount").value
+            };
+            localStorage.setItem("metronomeSettings", JSON.stringify(settings));
+            alert("Settings saved!");
+        }
+
+        function loadSettings() {
+            const savedSettings = JSON.parse(localStorage.getItem("metronomeSettings"));
+            if (savedSettings) {
+                document.getElementById("tempo").value = savedSettings.tempo;
+                document.getElementById("beats").value = savedSettings.beats;
+                document.getElementById("subdivision").value = savedSettings.subdivision;
+                document.getElementById("polyrhythm").value = savedSettings.polyrhythm;
+                document.getElementById("increase-tempo").value = savedSettings.increaseTempo;
+                document.getElementById("increase-amount").value = savedSettings.increaseAmount;
+            }
+        }
+
+        let audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        let isPlaying = false;
+        let currentBeat = 0;
+        let timer;
+
+        function playClick(accent = false) {
+            let osc = audioContext.createOscillator();
+            let gainNode = audioContext.createGain();
+            osc.type = "square";
+            osc.frequency.value = accent ? 880 : 440;
+            gainNode.gain.value = 1.0;
+
+            osc.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+
+            osc.start();
+            osc.stop(audioContext.currentTime + 0.1);
+        }
+
+        function updateBeatIndicator(beatsPerMeasure) {
+            let indicator = document.getElementById("beatIndicator");
+            indicator.innerHTML = "";
+            for (let i = 0; i < beatsPerMeasure; i++) {
+                let div = document.createElement("div");
+                div.classList.add("beat");
+                if (i === 0) div.classList.add("active");
+                indicator.appendChild(div);
+            }
+        }
+
+        function highlightBeat(beat) {
+            let beats = document.querySelectorAll(".beat");
+            beats.forEach((b, index) => {
+                b.classList.toggle("active", index === beat);
+            });
+        }
+
+        function startMetronome() {
+            if (isPlaying) {
+                clearInterval(timer);
+                isPlaying = false;
+                document.getElementById("startStop").textContent = "Start";
+                return;
+            }
+
+            let bpm = parseInt(document.getElementById("tempo").value);
+            let beatsPerMeasure = parseInt(document.getElementById("beats").value);
+            let subdivision = parseInt(document.getElementById("subdivision").value);
+
+            let interval = (60 / bpm) * 1000 / subdivision;
+            currentBeat = 0;
+            isPlaying = true;
+            document.getElementById("startStop").textContent = "Stop";
+
+            updateBeatIndicator(beatsPerMeasure);
+
+            timer = setInterval(() => {
+                playClick(currentBeat % subdivision === 0);
+                highlightBeat(currentBeat % beatsPerMeasure);
+                currentBeat++;
+            }, interval);
+        }
+
+        document.getElementById("startStop").addEventListener("click", startMetronome);
+    </script>
+
+</body>
+</html>
