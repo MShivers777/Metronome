@@ -1,5 +1,14 @@
 // Metronome Code with Updates
 
+document.getElementById("login-form").addEventListener("submit", function(event) {
+            event.preventDefault();
+            document.getElementById("login-form").style.display = "none";
+            document.getElementById("loading").style.display = "block";
+            setTimeout(() => {
+                window.location.href = "metronome.html";
+            }, 1000);
+        });
+        
 document.addEventListener("DOMContentLoaded", function () {
     const password = "mikemetronome";
     
