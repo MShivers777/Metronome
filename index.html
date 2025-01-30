@@ -1,84 +1,82 @@
 // Metronome Code with Updates
 
-const password = "mikemetronome";
-
-// Ask for password before showing the metronome
-const userPassword = prompt("Enter password to access the metronome:");
-if (userPassword !== password) {
-    alert("Incorrect password. Access denied.");
-    document.body.innerHTML = ""; // Clears the page if wrong password
-} else {
-    document.body.style.display = "block";
-}
-
-const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-let isPlaying = false;
-let currentBeat = 0;
-let tempo = 120;
-let beatsPerMeasure = 4;
-let noteValue = 4;
-let polyrhythmNumerator = 3;
-let polyrhythmDenominator = 2;
-let sounds = {
-    "click": "click.wav",
-    "woodblock": "woodblock.wav",
-    "beep": "beep.wav",
-    "clave": "clave.wav",
-    "hihat": "hihat.wav"
-};
-let selectedSound = "click";
-
-const tempoInput = document.getElementById("tempo");
-const beatsInput = document.getElementById("beats");
-const noteValueInput = document.getElementById("noteValue");
-const soundSelect = document.getElementById("sound");
-const polyrhythmInputNum = document.getElementById("polyNum");
-const polyrhythmInputDen = document.getElementById("polyDen");
-
-function playMetronome() {
-    if (!isPlaying) {
-        isPlaying = true;
-        scheduleBeats();
+document.addEventListener("DOMContentLoaded", function () {
+    const password = "mikemetronome";
+    
+    // Ask for password before showing the metronome
+    const userPassword = prompt("Enter password to access the metronome:");
+    if (userPassword !== password) {
+        alert("Incorrect password. Access denied.");
+        document.body.innerHTML = ""; // Clears the page if wrong password
+        return;
     }
-}
 
-function stopMetronome() {
-    isPlaying = false;
-}
+    document.body.style.display = "block";
 
-function scheduleBeats() {
-    if (!isPlaying) return;
-    const interval = (60 / tempo) * 1000;
-    playClick();
-    currentBeat = (currentBeat + 1) % beatsPerMeasure;
-    setTimeout(scheduleBeats, interval);
-}
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    let isPlaying = false;
+    let currentBeat = 0;
+    let tempo = 120;
+    let beatsPerMeasure = 4;
+    let noteValue = 4;
+    let polyrhythmNumerator = 3;
+    let polyrhythmDenominator = 2;
+    let sounds = {
+        "click": "click.wav",
+        "woodblock": "woodblock.wav",
+        "beep": "beep.wav",
+        "clave": "clave.wav",
+        "hihat": "hihat.wav"
+    };
+    let selectedSound = "click";
 
-function playClick() {
-    let osc = audioContext.createOscillator();
-    let gainNode = audioContext.createGain();
-    let sound = new Audio(sounds[selectedSound]);
-    sound.play();
-    osc.connect(gainNode);
-    gainNode.connect(audioContext.destination);
-    osc.start();
-    osc.stop(audioContext.currentTime + 0.1);
-}
+    // Ensure elements exist before accessing them
+    const tempoInput = document.getElementById("tempo");
+    const beatsInput = document.getElementById("beats");
+    const noteValueInput = document.getElementById("noteValue");
+    const soundSelect = document.getElementById("sound");
+    const polyrhythmInputNum = document.getElementById("polyNum");
+    const polyrhythmInputDen = document.getElementById("polyDen");
 
-// Update settings live
-[tempoInput, beatsInput, noteValueInput, soundSelect, polyrhythmInputNum, polyrhythmInputDen].forEach(input => {
-    input.addEventListener("input", () => {
-        tempo = parseInt(tempoInput.value);
-        beatsPerMeasure = parseInt(beatsInput.value);
-        noteValue = parseInt(noteValueInput.value);
-        selectedSound = soundSelect.value;
-        polyrhythmNumerator = parseInt(polyrhythmInputNum.value);
-        polyrhythmDenominator = parseInt(polyrhythmInputDen.value);
+    function playMetronome() {
+        if (!isPlaying) {
+            isPlaying = true;
+            scheduleBeats();
+        }
+    }
+
+    function stopMetronome() {
+        isPlaying = false;
+    }
+
+    function scheduleBeats() {
+        if (!isPlaying) return;
+        const interval = (60 / tempo) * 1000;
+        playClick();
+        currentBeat = (currentBeat + 1) % beatsPerMeasure;
+        setTimeout(scheduleBeats, interval);
+    }
+
+    function playClick() {
+        let sound = new Audio(sounds[selectedSound]);
+        sound.play();
+    }
+
+    // Update settings live
+    [tempoInput, beatsInput, noteValueInput, soundSelect, polyrhythmInputNum, polyrhythmInputDen].forEach(input => {
+        input.addEventListener("input", () => {
+            tempo = parseInt(tempoInput.value);
+            beatsPerMeasure = parseInt(beatsInput.value);
+            noteValue = parseInt(noteValueInput.value);
+            selectedSound = soundSelect.value;
+            polyrhythmNumerator = parseInt(polyrhythmInputNum.value);
+            polyrhythmDenominator = parseInt(polyrhythmInputDen.value);
+        });
     });
-});
 
-// UI Adjustments for Time Signature
-beatsInput.min = 1;
-noteValueInput.min = 1;
-beatsInput.max = 32;
-noteValueInput.max = 32;
+    // UI Adjustments for Time Signature
+    beatsInput.min = 1;
+    noteValueInput.min = 1;
+    beatsInput.max = 32;
+    noteValueInput.max = 32;
+});
