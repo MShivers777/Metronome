@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
+    <title>Metronome</title>
     <style>
         #loading {
             display: none;
@@ -27,15 +27,39 @@
     </style>
 </head>
 <body>
-    <h2>Login</h2>
-    <form id="login-form">
-        <label for="password">Enter Password:</label>
-        <input type="password" id="password" required>
-        <button type="submit">Login</button>
-    </form>
+    <h1>Metronome</h1>
+    <label for="tempo">Tempo (BPM):</label>
+    <input type="number" id="tempo" value="120">
+
+    <label for="beats">Beats per Measure:</label>
+    <input type="number" id="beats" value="4">
+
+    <label for="noteValue">Note Value:</label>
+    <input type="number" id="noteValue" value="4">
+
+    <label for="sound">Sound:</label>
+    <select id="sound">
+        <option value="click">Click</option>
+        <option value="woodblock">Woodblock</option>
+        <option value="beep">Beep</option>
+        <option value="clave">Clave</option>
+        <option value="hihat">Hi-hat</option>
+    </select>
+
+    <label for="polyNum">Polyrhythm Numerator:</label>
+    <input type="number" id="polyNum" value="3">
+
+    <label for="polyDen">Polyrhythm Denominator:</label>
+    <input type="number" id="polyDen" value="2">
+
+    <button onclick="playMetronome()">Start</button>
+    <button onclick="stopMetronome()">Stop</button>
+
     <div id="loading">
         <span class="spinner"></span>
-        <p>Logging in...</p>
+        <p>Loading...</p>
     </div>
+
+    <script src="metronome.js"></script> 
 </body>
 </html>
