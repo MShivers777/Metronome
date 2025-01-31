@@ -48,6 +48,26 @@ document.addEventListener("DOMContentLoaded", function () {
     const soundSelect = document.getElementById("sound");
     const polyrhythmInputNum = document.getElementById("polyNum");
     const polyrhythmInputDen = document.getElementById("polyDen");
+    const increaseTempoEveryInput = document.getElementById("increase-tempo");
+    const increaseAmountInput = document.getElementById("increase-amount");
+
+    function updateBeatIndicator(beatsPerMeasure) {
+        let indicator = document.getElementById("beatIndicator");
+        indicator.innerHTML = "";
+        for (let i = 0; i < beatsPerMeasure; i++) {
+            let div = document.createElement("div");
+            div.classList.add("beat");
+            if (i === 0) div.classList.add("active");
+            indicator.appendChild(div);
+        }
+    }
+
+    function highlightBeat(beat) {
+        let beats = document.querySelectorAll(".beat");
+        beats.forEach((b, index) => {
+            b.classList.toggle("active", index === beat);
+        });
+    }
 
     function playMetronome() {
         if (!isPlaying) {
@@ -64,6 +84,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!isPlaying) return;
         const interval = (60 / tempo) * 1000;
         playClick();
+        highlightBeat(currentBeat);
         currentBeat = (currentBeat + 1) % beatsPerMeasure;
         setTimeout(scheduleBeats, interval);
     }
@@ -74,7 +95,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // Update settings live
-    [tempoInput, beatsInput, noteValueInput, soundSelect, polyrhythmInputNum, polyrhythmInputDen].forEach(input => {
+    [tempoInput, beatsInput, noteValueInput, soundSelect, polyrhythmInputNum, polyrhythmInputDen, increaseTempoEveryInput, increaseAmountInput].forEach(input => {
         input.addEventListener("input", () => {
             tempo = parseInt(tempoInput.value);
             beatsPerMeasure = parseInt(beatsInput.value);
@@ -82,6 +103,8 @@ document.addEventListener("DOMContentLoaded", function () {
             selectedSound = soundSelect.value;
             polyrhythmNumerator = parseInt(polyrhythmInputNum.value);
             polyrhythmDenominator = parseInt(polyrhythmInputDen.value);
+            increaseTempoEvery = parseInt(increaseTempoEveryInput.value);
+            increaseAmount = parseInt(increaseAmountInput.value);
         });
     });
 
@@ -90,4 +113,46 @@ document.addEventListener("DOMContentLoaded", function () {
     noteValueInput.min = 1;
     beatsInput.max = 32;
     noteValueInput.max = 32;
+
+    updateBeatIndicator(beatsPerMeasure);
+
+    let measureCount = 0;
+
+    function startMetronome() {
+        let interval = (60 / tempo) * 1000;
+        currentBeat = 0;
+        measureCount = 0;
+        isPlaying = true;
+        document.getElementById("startStop").textContent = "Stop";
+
+        timer = setInterval(() => {
+            playClick();
+            highlightBeat(currentBeat);
+
+            if (polyrhythmNumerator && polyrhythmDenominator) {
+                if (currentBeat % polyrhythmDenominator === 0) playClick();
+            }
+
+            currentBeat++;
+            
+            if (currentBeat % beatsPerMeasure === 0) {
+                measureCount++;
+                if (measureCount % increaseTempoEvery === 0) {
+                    tempo += increaseAmount;
+                    interval = (60 / tempo) * 1000;
+                    clearInterval(timer);
+                    startMetronome();
+                }
+            }
+        }, interval);
+    }
+
+    document.getElementById("startStop").addEventListener("click", () => {
+        if (isPlaying) {
+            stopMetronome();
+            document.getElementById("startStop").textContent = "Start";
+        } else {
+            startMetronome();
+        }
+    });
 });

@@ -4,38 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Metronome</title>
-    <style>
-        #loading {
-            display: none;
-            text-align: center;
-            margin-top: 20px;
-        }
-        #loading .spinner {
-            border: 4px solid rgba(0, 0, 0, 0.1);
-            border-left-color: #000;
-            border-radius: 50%;
-            width: 24px;
-            height: 24px;
-            animation: spin 1s linear infinite;
-            display: inline-block;
-            vertical-align: middle;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-    </style>
+    <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
     <h1>Metronome</h1>
     <label for="tempo">Tempo (BPM):</label>
     <input type="number" id="tempo" value="120">
+    <div class="divider"></div>
 
     <label for="beats">Beats per Measure:</label>
     <input type="number" id="beats" value="4">
-
-    <label for="noteValue">Note Value:</label>
+    <label for="noteValue">Note Value Per Beat:</label>
     <input type="number" id="noteValue" value="4">
+    <div class=""divider"></div>
 
     <label for="sound">Sound:</label>
     <select id="sound">
@@ -45,15 +26,33 @@
         <option value="clave">Clave</option>
         <option value="hihat">Hi-hat</option>
     </select>
+    <div class="beat-indicator" id="beatIndicator">(Beat indicator)</div>
+    <div class="controls">
+        <button id="startStop">Start</button>
+    </div>
+    
 
+
+    <div class="divider"></div>
+    <h2>Practice Mode</h2>
+    <label for="increase-tempo" id="component">Increase Tempo Every:</label>
+    <input type="number" id="increase-tempo component" value="4" min="1" max="20"> measures
+    
+    <label for="increase-amount" id="component">Increase BPM by:</label>
+    <input type="number" id="increase-amount component" value="1" min="1" max="10">
+
+    <div class="controls">
+        <button id="practiceOn">Practice Mode On/Off</button>
+
+    <h2>Polyrhythms</h2>
+    <div class="controls">
+        <button id="polyOn">Polyrhythm On/Off</button>
+    </div>
     <label for="polyNum">Polyrhythm Numerator:</label>
     <input type="number" id="polyNum" value="3">
 
     <label for="polyDen">Polyrhythm Denominator:</label>
     <input type="number" id="polyDen" value="2">
-
-    <button onclick="playMetronome()">Start</button>
-    <button onclick="stopMetronome()">Stop</button>
 
     <div id="loading">
         <span class="spinner"></span>
