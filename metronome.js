@@ -1,26 +1,28 @@
 // Metronome Code with Updates
 
-document.getElementById("login-form").addEventListener("submit", function(event) {
-    event.preventDefault();
-    console.log("Form submitted");
-    const password = "ontime";
-    const userPassword = document.getElementById("password").value;
-    console.log("Entered password:", userPassword);
-    
-    if (userPassword !== password) {
-        alert("Incorrect password. Access denied.");
-        return;
-    }
-
-    console.log("Password correct");
-    document.getElementById("login-form").style.display = "none";
-    document.getElementById("loading").style.display = "block";
-    setTimeout(() => {
-        window.location.href = "metronome.html";
-    }, 1000);
-});
-
 document.addEventListener("DOMContentLoaded", function () {
+    console.log("Screen loaded");
+    
+    document.getElementById("login-form").addEventListener("submit", function(event) {
+        event.preventDefault();
+        console.log("Login button pressed");
+        const password = "ontime";
+        const userPassword = document.getElementById("password").value;
+        console.log("Entered password:", userPassword);
+        
+        if (userPassword !== password) {
+            alert("Incorrect password. Access denied.");
+            return;
+        }
+
+        console.log("Password correct");
+        document.getElementById("login-form").style.display = "none";
+        document.getElementById("loading").style.display = "block";
+        setTimeout(() => {
+            window.location.href = "metronome.html";
+        }, 1000);
+    });
+
     console.log("DOM fully loaded and parsed");
     const audioContext = new (window.AudioContext || window.webkitAudioContext)();
     let isPlaying = false;
