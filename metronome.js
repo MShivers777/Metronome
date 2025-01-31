@@ -1,27 +1,27 @@
 // Metronome Code with Updates
 
 document.getElementById("login-form").addEventListener("submit", function(event) {
-            event.preventDefault();
-            document.getElementById("login-form").style.display = "none";
-            document.getElementById("loading").style.display = "block";
-            setTimeout(() => {
-                window.location.href = "metronome.html";
-            }, 1000);
-        });
-        
-document.addEventListener("DOMContentLoaded", function () {
-    const password = "mikemetronome";
+    event.preventDefault();
+    console.log("Form submitted");
+    const password = "ontime";
+    const userPassword = document.getElementById("password").value;
+    console.log("Entered password:", userPassword);
     
-    // Ask for password before showing the metronome
-    const userPassword = prompt("Enter password to access the metronome:");
     if (userPassword !== password) {
         alert("Incorrect password. Access denied.");
-        document.body.innerHTML = ""; // Clears the page if wrong password
         return;
     }
 
-    document.body.style.display = "block";
+    console.log("Password correct");
+    document.getElementById("login-form").style.display = "none";
+    document.getElementById("loading").style.display = "block";
+    setTimeout(() => {
+        window.location.href = "metronome.html";
+    }, 1000);
+});
 
+document.addEventListener("DOMContentLoaded", function () {
+    console.log("DOM fully loaded and parsed");
     const audioContext = new (window.AudioContext || window.webkitAudioContext)();
     let isPlaying = false;
     let currentBeat = 0;
