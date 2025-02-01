@@ -24,6 +24,36 @@ document.addEventListener("DOMContentLoaded", function () {
     // });
 
     console.log("DOM fully loaded and parsed");
+    const startStopButton = document.getElementById('startStop');
+    const practiceOnButton = document.getElementById('practiceOn');
+    const polyOnButton = document.getElementById('polyOn');
+    
+    if (startStopButton) {
+        startStopButton.addEventListener('click', () => {
+            if (isPlaying) {
+                stopMetronome();
+                startStopButton.textContent = "Start";
+            } else {
+                startMetronome();
+                startStopButton.textContent = "Stop";
+            }
+        });
+    }
+    
+    if (practiceOnButton) {
+        practiceOnButton.addEventListener('click', () => {
+            console.log("Practice mode toggled");
+            // Add functionality for practice mode here
+        });
+    }
+    
+    if (polyOnButton) {
+        polyOnButton.addEventListener('click', () => {
+            console.log("Polyrhythm mode toggled");
+            // Add functionality for polyrhythm mode here
+        });
+    }
+
     const audioContext = new (window.AudioContext || window.webkitAudioContext)();
     let isPlaying = false;
     let currentBeat = 0;
@@ -32,14 +62,23 @@ document.addEventListener("DOMContentLoaded", function () {
     let noteValue = 4;
     let polyrhythmNumerator = 3;
     let polyrhythmDenominator = 2;
+    let increaseTempoEvery = 4;
+    let increaseAmount = 1;
     let sounds = {
-        "click": "click.wav",
-        "woodblock": "woodblock.wav",
-        "beep": "beep.wav",
-        "clave": "clave.wav",
-        "hihat": "hihat.wav"
+        "click": "click.mp3",
+        "beep-high": "beep-high.mp3",
+        "bubble": "bubble.mp3",
+        "clave": "clave.mp3",
+        "switch": "switch.mp3",
+        "hi-hat": "hi-hat.mp3",
+        "pop high": "pop-hi.mp3",
+        "high tone": "880Hz sine.wav",
+        "medium tone": "440Hz sine.wav",
+        "low tone": "220Hz sine.wav",
+        "woodblock": "woodblock.wav" // Placeholder for future addition
     };
     let selectedSound = "click";
+    let timer;
 
     // Ensure elements exist before accessing them
     const tempoInput = document.getElementById("tempo");
@@ -78,6 +117,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function stopMetronome() {
         isPlaying = false;
+        clearInterval(timer);
     }
 
     function scheduleBeats() {
@@ -86,11 +126,11 @@ document.addEventListener("DOMContentLoaded", function () {
         playClick();
         highlightBeat(currentBeat);
         currentBeat = (currentBeat + 1) % beatsPerMeasure;
-        setTimeout(scheduleBeats, interval);
+        timer = setTimeout(scheduleBeats, interval);
     }
 
     function playClick() {
-        let sound = new Audio(sounds[selectedSound]);
+        let sound = new Audio(`./sounds/${sounds[selectedSound]}`);
         sound.play();
     }
 

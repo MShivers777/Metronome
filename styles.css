@@ -46,6 +46,20 @@ h2 {
     display: inline-block;
     vertical-align: middle;
 }
+
+.beat {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    margin: 5px;
+    background-color: #ccc;
+    border-radius: 50%;
+}
+
+.beat.active {
+    background-color: #333;
+}
+
 @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
