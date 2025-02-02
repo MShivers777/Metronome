@@ -46,6 +46,25 @@ h2 {
     background-color: #333;
 }
 
+.beat-boxes {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.beat-box {
+    width: 30px;
+    height: 30px;
+    margin: 5px;
+    background-color: #ccc;
+    border: 1px solid #333;
+    transition: background-color 0.1s;
+}
+
+.beat-box.active {
+    background-color: #333;
+}
+
 /*
 #loading {
     display: none;
