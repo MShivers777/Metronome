@@ -59,13 +59,11 @@ document.addEventListener("DOMContentLoaded", function () {
     let currentBeat = 0;
     let tempo = 120;
     let beatsPerMeasure = 4;
-    let selectedSound = "hi-hat";
     let timer;
 
     // Ensure elements exist before accessing them
     const tempoInput = document.getElementById("tempo");
     const beatsInput = document.getElementById("beats");
-    const soundSelect = document.getElementById("sound");
 
     function highlightBeat(beat) {
         let beats = document.querySelectorAll(".beat-box");
@@ -84,6 +82,7 @@ document.addEventListener("DOMContentLoaded", function () {
     function stopMetronome() {
         isPlaying = false;
         clearTimeout(timer);
+        console.log("Metronome stopped");
     }
 
     function scheduleBeats() {
@@ -96,17 +95,18 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function playClick() {
-        let sound = new Audio(`./sounds/${selectedSound}.wav`);
-        sound.play().catch(error => {
-            console.error("Audio playback failed:", error);
-        });
+        const oscillator = audioContext.createOscillator();
+        oscillator.type = "sine";
+        oscillator.frequency.setValueAtTime(440, audioContext.currentTime); // A4 note
+        oscillator.connect(audioContext.destination);
+        oscillator.start();
+        oscillator.stop(audioContext.currentTime + 0.1); // Play for 0.1 seconds
     }
 
-    [tempoInput, beatsInput, soundSelect].forEach(input => {
+    [tempoInput, beatsInput].forEach(input => {
         input.addEventListener("input", () => {
             tempo = parseInt(tempoInput.value);
             beatsPerMeasure = parseInt(beatsInput.value);
-            selectedSound = soundSelect.value;
             updateBeatBoxes();
         });
     });

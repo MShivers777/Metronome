@@ -22,18 +22,8 @@
     </select>
     <div class="divider"></div>
 
-    <label for="sound">Sound:</label>
-    <select id="sound">
-        <option value="hi-hat">Hi-hat</option>
-        <option value="beep-high">Beep High</option>
-        <option value="bubble">Bubble</option>
-        <option value="clave">Clave</option>
-        <option value="pop high">Pop High</option>
-        <option value="switch">Switch</option>
-        <option value="high tone">High Tone</option>
-        <option value="medium tone">Medium Tone</option>
-        <option value="low tone">Low Tone</option>
-    </select>
+    <!-- Removed Sound Selector -->
+
     <div class="beat-indicator" id="beatIndicator">(Beat indicator)</div>
     <div id="beatBoxes" class="beat-boxes"></div>
     <div class="controls">
@@ -57,6 +47,8 @@
 
     <script src="metronome.js"></script> 
     <script>
+        let isPlaying = false;
+
         function resumeAudioContext() {
             if (typeof AudioContext !== "undefined") {
                 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -87,11 +79,13 @@
         document.getElementById('start').addEventListener('click', function() {
             this.disabled = true;
             this.style.backgroundColor = 'gray';
+            isPlaying = true;
             resumeAudioContext();
         });
 
         document.getElementById('stop').addEventListener('click', function() {
-            stopMetronome();
+            window.stopMetronome();
+            isPlaying = false;
             document.getElementById('start').disabled = false;
             document.getElementById('start').style.backgroundColor = '';
         });
