@@ -11,6 +11,8 @@ document.addEventListener("DOMContentLoaded", function () {
     const startTempoInput = document.getElementById("start-tempo");
     const finalTempoInput = document.getElementById("final-tempo");
     const totalPracticeTimeDisplay = document.getElementById("total-practice-time");
+    const practiceSettings = document.getElementById("practice-settings");
+    const tempoDisplay = document.getElementById("tempo-display");
     
     let audioContext = new (window.AudioContext || window.webkitAudioContext)();
     let isPlaying = false;
@@ -60,6 +62,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     currentTempo = parseInt(finalTempoInput.value, 10);
                 }
                 tempoInput.value = currentTempo;
+                tempoDisplay.textContent = currentTempo;
                 console.log("Tempo increased to: " + currentTempo);
             }
         }
@@ -76,6 +79,7 @@ document.addEventListener("DOMContentLoaded", function () {
         nextNoteTime = audioContext.currentTime;
         currentTempo = isPracticeMode ? parseInt(startTempoInput.value, 10) : parseInt(tempoInput.value, 10);
         tempoInput.value = currentTempo; // Update the displayed tempo
+        tempoDisplay.textContent = currentTempo;
         measureCount = 0;
         scheduleNextBeat();
         
@@ -92,6 +96,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function togglePracticeMode() {
         isPracticeMode = practiceSlider.checked;
+        practiceSettings.classList.toggle('visible', isPracticeMode);
         console.log("Practice mode: " + (isPracticeMode ? "ON" : "OFF"));
         calculateTotalPracticeTime();
     }
@@ -115,6 +120,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function updateStartTempo() {
         tempoInput.value = startTempoInput.value;
+        tempoDisplay.textContent = startTempoInput.value;
     }
 
     function calculateTotalPracticeTime() {

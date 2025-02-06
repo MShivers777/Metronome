@@ -7,52 +7,64 @@
     <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
-    <h1>Metronome</h1>
-    <label for="tempo">Tempo (BPM):</label>
-    <input type="number" id="tempo" value="120">
-    <div class="divider"></div>
-
-    <label for="beats">Beats per Measure:</label>
-    <input type="number" id="beats" value="4">
-    <label for="noteValue">Note Value Per Beat:</label>
-    <select id="noteValue">
-        <option value="4">4</option>
-        <option value="8">8</option>
-        <option value="16">16</option>
-    </select>
-    <div class="divider"></div>
-
-    <!-- Removed Sound Selector -->
-
-    <div class="beat-indicator" id="beatIndicator">(Beat indicator)</div>
-    <div id="beatBoxes" class="beat-boxes"></div>
-    <div class="controls">
-        <button id="start">Start</button>
-        <button id="stop">Stop</button>
-    </div>
-    
-    <div class="divider"></div>
-    <h2>Practice Mode</h2>
-    <label for="increase-tempo">Increase Tempo: Every</label>
-    <input type="number" id="increase-tempo" value="4" min="1" max="20"> measures,
-    
-    <label for="increase-amount">increase BPM by:</label>
-    <input type="number" id="increase-amount" value="1" min="1" max="30">
-
-    <label for="start-tempo">Start Tempo:</label>
-    <input type="number" id="start-tempo" value="120" min="1" max="300">
-
-    <label for="final-tempo">Final Tempo:</label>
-    <input type="number" id="final-tempo" value="180" min="1" max="300">
-
-    <div class="controls">
-        <label for="practiceOn">Practice Mode:</label>
-        <input type="checkbox" id="practiceOn">
+    <div class="section-header">
+        <h1>Metronome</h1>
     </div>
 
-    <div id="total-practice-time" class="total-practice-time"></div>
+    <div class="tempo-display">
+        <div class="tempo-value" id="tempo-display">120</div>
+        <div class="tempo-label">BPM</div>
+    </div>
 
-    <!-- Removed Polyrhythm Mode Section -->
+    <div class="main-controls">
+        <div class="input-group">
+            <label for="tempo">Set Tempo:</label>
+            <input type="number" id="tempo" value="120">
+        </div>
+
+        <div class="input-group">
+            <label for="beats">Beats per Measure:</label>
+            <input type="number" id="beats" value="4">
+        </div>
+
+        <div id="beatBoxes" class="beat-boxes"></div>
+
+        <div class="controls">
+            <button id="start">Start</button>
+            <button id="stop">Stop</button>
+        </div>
+        <label class="switch">
+            <input type="checkbox" id="practiceOn">
+            <span class="slider"></span>
+        </label>
+        <span>Practice Mode</span>
+    </div>
+    
+    <div class="practice-mode" id="practice-settings">
+        <div class="input-group">
+            <label for="start-tempo">Start Tempo:</label>
+            <input type="number" id="start-tempo" value="120" min="1" max="300">
+        </div>
+
+        <div class="input-group">
+            <label for="final-tempo">Final Tempo:</label>
+            <input type="number" id="final-tempo" value="180" min="1" max="300">
+        </div>
+
+        <div class="input-group">
+            <label for="increase-tempo">Increase Every:</label>
+            <input type="number" id="increase-tempo" value="4" min="1" max="20">
+            <span>measures</span>
+        </div>
+        
+        <div class="input-group">
+            <label for="increase-amount">Increase By:</label>
+            <input type="number" id="increase-amount" value="1" min="1" max="30">
+            <span>BPM</span>
+        </div>
+
+        <div id="total-practice-time"></div>
+    </div>
 
     <script src="metronome.js"></script> 
 </body>
