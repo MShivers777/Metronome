@@ -46,49 +46,5 @@
     <!-- Removed Polyrhythm Mode Section -->
 
     <script src="metronome.js"></script> 
-    <script>
-        let isPlaying = false;
-
-        function resumeAudioContext() {
-            if (typeof AudioContext !== "undefined") {
-                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                if (audioCtx.state === 'suspended') {
-                    audioCtx.resume().then(() => {
-                        startMetronome();
-                    });
-                } else {
-                    startMetronome();
-                }
-            }
-        }
-
-        function updateBeatBoxes() {
-            const beats = document.getElementById('beats').value;
-            const beatBoxes = document.getElementById('beatBoxes');
-            beatBoxes.innerHTML = '';
-            for (let i = 0; i < beats; i++) {
-                const box = document.createElement('div');
-                box.className = 'beat-box';
-                beatBoxes.appendChild(box);
-            }
-        }
-
-        document.getElementById('beats').addEventListener('input', updateBeatBoxes);
-        updateBeatBoxes(); // Initial call to set up beat boxes
-
-        document.getElementById('start').addEventListener('click', function() {
-            this.disabled = true;
-            this.style.backgroundColor = 'gray';
-            isPlaying = true;
-            resumeAudioContext();
-        });
-
-        document.getElementById('stop').addEventListener('click', function() {
-            window.stopMetronome();
-            isPlaying = false;
-            document.getElementById('start').disabled = false;
-            document.getElementById('start').style.backgroundColor = '';
-        });
-    </script>
 </body>
 </html>

@@ -75,6 +75,20 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
+    function updateBeatBoxes() {
+        const beats = document.getElementById('beats').value;
+        const beatBoxes = document.getElementById('beatBoxes');
+        beatBoxes.innerHTML = '';
+        for (let i = 0; i < beats; i++) {
+            const box = document.createElement('div');
+            box.className = 'beat-box';
+            beatBoxes.appendChild(box);
+        }
+    }
+
+    document.getElementById('beats').addEventListener('input', updateBeatBoxes);
+    updateBeatBoxes(); // Initial call to set up beat boxes
+
     startButton.addEventListener("click", startMetronome);
     stopButton.addEventListener("click", stopMetronome);
 
