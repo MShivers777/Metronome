@@ -24,19 +24,26 @@ document.addEventListener("DOMContentLoaded", function () {
     // });
 
     console.log("DOM fully loaded and parsed");
-    const startStopButton = document.getElementById('startStop');
+    const startButton = document.getElementById('start');
+    const stopButton = document.getElementById('stop');
     const practiceOnButton = document.getElementById('practiceOn');
-    const polyOnButton = document.getElementById('polyOn');
+    const beatBoxesContainer = document.getElementById('beatBoxes');
     
-    if (startStopButton) {
-        startStopButton.addEventListener('click', () => {
-            if (isPlaying) {
-                stopMetronome();
-                startStopButton.textContent = "Start";
-            } else {
-                startMetronome();
-                startStopButton.textContent = "Stop";
-            }
+    if (startButton) {
+        startButton.addEventListener('click', () => {
+            console.log("Start button pressed");
+            startMetronome();
+            startButton.disabled = true;
+            beatBoxesContainer.classList.add('running');
+        });
+    }
+    
+    if (stopButton) {
+        stopButton.addEventListener('click', () => {
+            console.log("Stop button pressed");
+            stopMetronome();
+            startButton.disabled = false;
+            beatBoxesContainer.classList.remove('running');
         });
     }
     
@@ -46,20 +53,13 @@ document.addEventListener("DOMContentLoaded", function () {
             // Add functionality for practice mode here
         });
     }
-    
-    if (polyOnButton) {
-        polyOnButton.addEventListener('click', () => {
-            console.log("Polyrhythm mode toggled");
-            // Add functionality for polyrhythm mode here
-        });
-    }
 
     const audioContext = new (window.AudioContext || window.webkitAudioContext)();
     let isPlaying = false;
     let currentBeat = 0;
     let tempo = 120;
     let beatsPerMeasure = 4;
-    let selectedSound = "click";
+    let selectedSound = "hi-hat";
     let timer;
 
     // Ensure elements exist before accessing them
@@ -83,8 +83,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function stopMetronome() {
         isPlaying = false;
-        clearInterval(timer);
-        document.getElementById("startStop").textContent = "Start";
+        clearTimeout(timer);
     }
 
     function scheduleBeats() {
@@ -116,7 +115,6 @@ document.addEventListener("DOMContentLoaded", function () {
         let interval = (60 / tempo) * 1000;
         currentBeat = 0;
         isPlaying = true;
-        document.getElementById("startStop").textContent = "Stop";
         timer = setInterval(() => {
             playClick();
             highlightBeat(currentBeat);
@@ -127,25 +125,6 @@ document.addEventListener("DOMContentLoaded", function () {
     // Attach startMetronome and stopMetronome to the window object
     window.startMetronome = startMetronome;
     window.stopMetronome = stopMetronome;
-
-    // Ensure the audio context is resumed on user gesture
-    document.getElementById("startStop").addEventListener("click", () => {
-        if (audioContext.state === 'suspended') {
-            audioContext.resume().then(() => {
-                if (isPlaying) {
-                    stopMetronome();
-                } else {
-                    startMetronome();
-                }
-            });
-        } else {
-            if (isPlaying) {
-                stopMetronome();
-            } else {
-                startMetronome();
-            }
-        }
-    });
 
     updateBeatBoxes(); // Initial call to set up beat boxes
 });

@@ -20,7 +20,7 @@
         <option value="8">8</option>
         <option value="16">16</option>
     </select>
-    <div class=""divider"></div>
+    <div class="divider"></div>
 
     <label for="sound">Sound:</label>
     <select id="sound">
@@ -37,11 +37,10 @@
     <div class="beat-indicator" id="beatIndicator">(Beat indicator)</div>
     <div id="beatBoxes" class="beat-boxes"></div>
     <div class="controls">
-        <button id="startStop" onclick="resumeAudioContext()">Start</button>
+        <button id="start">Start</button>
+        <button id="stop">Stop</button>
     </div>
     
-
-
     <div class="divider"></div>
     <h2>Practice Mode</h2>
     <label for="increase-tempo">Increase Tempo: Every</label>
@@ -52,23 +51,9 @@
 
     <div class="controls">
         <button id="practiceOn">Practice Mode On/Off</button>
-
-    <h2>Polyrhythms</h2>
-    <div class="controls">
-        <button id="polyOn">Polyrhythm On/Off</button>
-    </div>
-    <label for="polyNum">Polyrhythm Numerator:</label>
-    <input type="number" id="polyNum" value="3">
-
-    <label for="polyDen">Polyrhythm Denominator:</label>
-    <input type="number" id="polyDen" value="2">
-<!--
-    <div id="loading">
-        <span class="spinner"></span>
-        <p>Loading...</p>
     </div>
 
--->
+    <!-- Removed Polyrhythm Mode Section -->
 
     <script src="metronome.js"></script> 
     <script>
@@ -98,6 +83,18 @@
 
         document.getElementById('beats').addEventListener('input', updateBeatBoxes);
         updateBeatBoxes(); // Initial call to set up beat boxes
+
+        document.getElementById('start').addEventListener('click', function() {
+            this.disabled = true;
+            this.style.backgroundColor = 'gray';
+            resumeAudioContext();
+        });
+
+        document.getElementById('stop').addEventListener('click', function() {
+            stopMetronome();
+            document.getElementById('start').disabled = false;
+            document.getElementById('start').style.backgroundColor = '';
+        });
     </script>
 </body>
 </html>

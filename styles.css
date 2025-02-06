@@ -65,6 +65,12 @@ h2 {
     background-color: #333;
 }
 
+.beat-boxes.running {
+    border: 2px solid #ff0000; /* Change the color to red when running */
+    padding: 10px;
+    border-radius: 5px;
+}
+
 /*
 #loading {
     display: none;
