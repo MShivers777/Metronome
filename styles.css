@@ -73,21 +73,47 @@ h2 {
 }
 
 .tempo-display {
-    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
     margin: 2rem 0;
+    cursor: pointer;
 }
 
 .tempo-value {
-    font-size: 6rem;
+    font-size: 8rem;
     font-weight: 700;
     margin: 0;
     color: #2c3e50;
+    transition: color 0.2s ease;
 }
 
-.tempo-label {
-    font-size: 1rem;
-    color: #7f8c8d;
-    margin-top: -1rem;
+.tempo-value:hover {
+    color: #3498db;
+}
+
+.tempo-slider {
+    width: 300px;
+    -webkit-appearance: none;
+    height: 4px;
+    border-radius: 2px;
+    background: #ddd;
+    margin: 1rem 0;
+}
+
+.tempo-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #3498db;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.tempo-slider::-webkit-slider-thumb:hover {
+    transform: scale(1.2);
 }
 
 .controls {
@@ -121,7 +147,10 @@ button:disabled {
 }
 
 .practice-mode {
-    display: none;
+    display: none;  /* Initially hidden */
+    width: 100%;
+    max-width: 500px;
+    margin: 2rem auto;
     padding: 1.5rem;
     background-color: white;
     border-radius: 12px;
@@ -196,4 +225,21 @@ input:checked + .slider:before {
     margin-top: 1rem;
     font-style: italic;
     color: #7f8c8d;
+}
+
+.main-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.main-controls {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+    width: 100%;
 }

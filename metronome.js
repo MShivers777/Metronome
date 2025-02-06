@@ -3,7 +3,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const startButton = document.getElementById("start");
     const stopButton = document.getElementById("stop");
-    const tempoInput = document.getElementById("tempo");
     const beatsInput = document.getElementById("beats");
     const practiceSlider = document.getElementById("practiceOn");
     const increaseTempoInput = document.getElementById("increase-tempo");
@@ -13,6 +12,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const totalPracticeTimeDisplay = document.getElementById("total-practice-time");
     const practiceSettings = document.getElementById("practice-settings");
     const tempoDisplay = document.getElementById("tempo-display");
+    const tempoSlider = document.getElementById("tempo-slider");
     
     let audioContext = new (window.AudioContext || window.webkitAudioContext)();
     let isPlaying = false;
@@ -61,8 +61,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 if (currentTempo > parseInt(finalTempoInput.value, 10)) {
                     currentTempo = parseInt(finalTempoInput.value, 10);
                 }
-                tempoInput.value = currentTempo;
                 tempoDisplay.textContent = currentTempo;
+                tempoSlider.value = currentTempo;
                 console.log("Tempo increased to: " + currentTempo);
             }
         }
@@ -77,9 +77,11 @@ document.addEventListener("DOMContentLoaded", function () {
         isPlaying = true;
         currentBeat = 0;
         nextNoteTime = audioContext.currentTime;
-        currentTempo = isPracticeMode ? parseInt(startTempoInput.value, 10) : parseInt(tempoInput.value, 10);
-        tempoInput.value = currentTempo; // Update the displayed tempo
-        tempoDisplay.textContent = currentTempo;
+        if (isPracticeMode) {
+            currentTempo = parseInt(startTempoInput.value, 10);
+            updateTempoDisplay(currentTempo);
+            tempoSlider.value = currentTempo;
+        }
         measureCount = 0;
         scheduleNextBeat();
         
@@ -94,9 +96,16 @@ document.addEventListener("DOMContentLoaded", function () {
         stopButton.disabled = true;
     }
 
+    // Hide practice mode initially
+    practiceSettings.classList.remove('visible');
+    
     function togglePracticeMode() {
         isPracticeMode = practiceSlider.checked;
-        practiceSettings.classList.toggle('visible', isPracticeMode);
+        if (isPracticeMode) {
+            practiceSettings.classList.add('visible');
+        } else {
+            practiceSettings.classList.remove('visible');
+        }
         console.log("Practice mode: " + (isPracticeMode ? "ON" : "OFF"));
         calculateTotalPracticeTime();
     }
@@ -119,8 +128,8 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function updateStartTempo() {
-        tempoInput.value = startTempoInput.value;
-        tempoDisplay.textContent = startTempoInput.value;
+        updateTempoDisplay(startTempoInput.value);
+        tempoSlider.value = startTempoInput.value;
     }
 
     function calculateTotalPracticeTime() {
@@ -131,12 +140,34 @@ document.addEventListener("DOMContentLoaded", function () {
 
         if (isPracticeMode && startTempo < finalTempo && increaseAmount > 0) {
             const totalMeasures = Math.ceil((finalTempo - startTempo) / increaseAmount) * increaseTempo;
-            const totalTime = totalMeasures * (60 / startTempo) * beatsInput.value;
-            totalPracticeTimeDisplay.textContent = `Total Practice Time: ${Math.round(totalTime)} seconds`;
+            const totalTimeInSeconds = totalMeasures * (60 / startTempo) * beatsInput.value;
+            const minutes = Math.floor(totalTimeInSeconds / 60);
+            const seconds = Math.round(totalTimeInSeconds % 60);
+            totalPracticeTimeDisplay.textContent = `Total Practice Time: ${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
         } else {
             totalPracticeTimeDisplay.textContent = '';
         }
     }
+
+    function updateTempoDisplay(value) {
+        tempoDisplay.textContent = value;
+        currentTempo = parseInt(value, 10);
+    }
+
+    tempoSlider.addEventListener('input', (e) => {
+        updateTempoDisplay(e.target.value);
+        if (!isPracticeMode) {
+            currentTempo = parseInt(e.target.value, 10);
+        }
+    });
+
+    tempoDisplay.addEventListener('click', () => {
+        const newTempo = prompt('Enter BPM:', currentTempo);
+        if (newTempo && !isNaN(newTempo) && newTempo >= 30 && newTempo <= 300) {
+            updateTempoDisplay(newTempo);
+            tempoSlider.value = newTempo;
+        }
+    });
 
     document.getElementById('beats').addEventListener('input', updateBeatBoxes);
     updateBeatBoxes();
