@@ -39,9 +39,18 @@
     <label for="increase-amount">increase BPM by:</label>
     <input type="number" id="increase-amount" value="1" min="1" max="30">
 
+    <label for="start-tempo">Start Tempo:</label>
+    <input type="number" id="start-tempo" value="120" min="1" max="300">
+
+    <label for="final-tempo">Final Tempo:</label>
+    <input type="number" id="final-tempo" value="180" min="1" max="300">
+
     <div class="controls">
-        <button id="practiceOn">Practice Mode On/Off</button>
+        <label for="practiceOn">Practice Mode:</label>
+        <input type="checkbox" id="practiceOn">
     </div>
+
+    <div id="total-practice-time" class="total-practice-time"></div>
 
     <!-- Removed Polyrhythm Mode Section -->
 
