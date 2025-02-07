@@ -291,7 +291,50 @@ input:checked + .slider:before {
 /* Mobile optimization */
 @media (max-width: 480px) {
     body {
-        padding: 0.5rem;
+        padding: 0.25rem;
+    }
+
+    .main-container {
+        padding: 0.25rem;
+    }
+
+    .section-header {
+        margin: 0.25rem 0;
+    }
+
+    .tempo-display {
+        gap: 0.25rem;
+        margin: 0.25rem 0;
+        padding: 0.25rem;
+    }
+
+    .tempo-value {
+        font-size: 4rem;
+    }
+
+    .beat-boxes {
+        margin: 0.5rem 0;
+        padding: 0.5rem 0.6rem;
+        gap: 0.15rem;
+    }
+
+    .controls {
+        margin: 0.5rem 0;
+        gap: 0.5rem;
+    }
+
+    .input-group {
+        margin: 0.25rem 0;
+        gap: 0.25rem;
+    }
+
+    .practice-mode {
+        padding: 0.75rem;
+        margin: 0.5rem 0;
+    }
+
+    #total-practice-time {
+        margin-top: 0.5rem;
     }
 
     .tempo-value {
@@ -322,8 +365,31 @@ input:checked + .slider:before {
     }
 }
 
-/* Very small devices */
+/* Very small devices - additional adjustments */
 @media (max-width: 320px) {
+    body {
+        padding: 0.2rem;
+    }
+
+    .tempo-value {
+        font-size: 3rem;
+    }
+
+    .beat-boxes {
+        padding: 0.25rem 0.4rem;
+        gap: 0.1rem;
+    }
+
+    button {
+        padding: 0.5rem 1.2rem;
+        font-size: 0.9rem;
+    }
+
+    input[type="number"] {
+        padding: 0.3rem;
+        font-size: 0.9rem;
+    }
+
     .tempo-value {
         font-size: 3rem;
     }
