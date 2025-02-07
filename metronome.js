@@ -25,6 +25,16 @@ document.addEventListener("DOMContentLoaded", function () {
     let currentTempo;
     let measureCount = 0;
 
+    // Initialize currentTempo with the slider value
+    currentTempo = parseInt(tempoSlider.value, 10);
+
+    // Add mobile detection
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+    // Pre-load audio for mobile devices
+    const clickHigh = new Audio('data:audio/wav;base64,UklGRjIAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQ4AAABkAGQAAABkAAAAZABkAA==');
+    const clickLow = new Audio('data:audio/wav;base64,UklGRjIAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQYAAAA5ADkAAAA5AAAAOQA5AA==');
+
     function resumeAudioContext() {
         if (audioContext.state === "suspended") {
             audioContext.resume();
@@ -32,17 +42,25 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function playClick(isDownbeat) {
-        const osc = audioContext.createOscillator();
-        const gainNode = audioContext.createGain();
-        osc.connect(gainNode);
-        gainNode.connect(audioContext.destination);
+        if (isMobile) {
+            // Use pre-loaded audio for mobile
+            const click = isDownbeat ? clickHigh : clickLow;
+            click.currentTime = 0;
+            click.play().catch(error => console.log("Audio playback failed:", error));
+        } else {
+            // Use Web Audio API for desktop
+            const osc = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            osc.connect(gainNode);
+            gainNode.connect(audioContext.destination);
 
-        osc.frequency.value = isDownbeat ? 880 : 440;
-        gainNode.gain.setValueAtTime(1, audioContext.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.1);
-        
-        osc.start(audioContext.currentTime);
-        osc.stop(audioContext.currentTime + 0.1);
+            osc.frequency.value = isDownbeat ? 880 : 440;
+            gainNode.gain.setValueAtTime(1, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.1);
+            
+            osc.start(audioContext.currentTime);
+            osc.stop(audioContext.currentTime + 0.1);
+        }
     }
 
     function resetAnimation(element, className) {
@@ -87,16 +105,26 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function startMetronome() {
         if (isPlaying) return;
-        resumeAudioContext();
+        
+        // Ensure audio context is running
+        if (!isMobile) {
+            resumeAudioContext();
+        }
 
         isPlaying = true;
         currentBeat = 0;
         nextNoteTime = audioContext.currentTime;
+        
+        // Set initial tempo
         if (isPracticeMode) {
             currentTempo = parseInt(startTempoInput.value, 10);
-            updateTempoDisplay(currentTempo);
-            tempoSlider.value = currentTempo;
+        } else {
+            currentTempo = parseInt(tempoSlider.value, 10);
         }
+        
+        updateTempoDisplay(currentTempo);
+        tempoSlider.value = currentTempo;
+        
         measureCount = 0;
         scheduleNextBeat();
         
@@ -170,9 +198,10 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     tempoSlider.addEventListener('input', (e) => {
-        updateTempoDisplay(e.target.value);
+        const newTempo = parseInt(e.target.value, 10);
+        updateTempoDisplay(newTempo);
         if (!isPracticeMode) {
-            currentTempo = parseInt(e.target.value, 10);
+            currentTempo = newTempo;
         }
     });
 
