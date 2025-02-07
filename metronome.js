@@ -15,6 +15,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const tempoSlider = document.getElementById("tempo-slider");
     const beatBoxesContainer = document.getElementById('beatBoxes');
     const tempoDisplayContainer = document.querySelector('.tempo-display');
+    const subdivisionSelect = document.getElementById("subdivision");
     
     let audioContext = new (window.AudioContext || window.webkitAudioContext)();
     let isPlaying = false;
@@ -24,6 +25,8 @@ document.addEventListener("DOMContentLoaded", function () {
     let scheduler;
     let currentTempo;
     let measureCount = 0;
+    let currentSubdivision = 0;
+    let subdivisionValue = 1;
 
     // Initialize currentTempo with the slider value
     currentTempo = parseInt(tempoSlider.value, 10);
@@ -34,6 +37,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // Pre-load audio for mobile devices
     const clickHigh = new Audio('data:audio/wav;base64,UklGRjIAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQ4AAABkAGQAAABkAAAAZABkAA==');
     const clickLow = new Audio('data:audio/wav;base64,UklGRjIAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQYAAAA5ADkAAAA5AAAAOQA5AA==');
+    const clickSub = new Audio('data:audio/wav;base64,UklGRjIAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQ4AAAAAAQAAAAEAAAABAAAAAQAx');
 
     function resumeAudioContext() {
         if (audioContext.state === "suspended") {
@@ -41,21 +45,20 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    function playClick(isDownbeat) {
+    function playClick(isDownbeat, isMainBeat) {
         if (isMobile) {
-            // Use pre-loaded audio for mobile
-            const click = isDownbeat ? clickHigh : clickLow;
+            const click = isDownbeat ? clickHigh : (isMainBeat ? clickLow : clickSub);
             click.currentTime = 0;
             click.play().catch(error => console.log("Audio playback failed:", error));
         } else {
-            // Use Web Audio API for desktop
             const osc = audioContext.createOscillator();
             const gainNode = audioContext.createGain();
             osc.connect(gainNode);
             gainNode.connect(audioContext.destination);
 
-            osc.frequency.value = isDownbeat ? 880 : 440;
-            gainNode.gain.setValueAtTime(1, audioContext.currentTime);
+            // Different frequencies for different types of beats
+            osc.frequency.value = isDownbeat ? 880 : (isMainBeat ? 440 : 660);
+            gainNode.gain.setValueAtTime(isMainBeat ? 1 : 0.7, audioContext.currentTime);
             gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.1);
             
             osc.start(audioContext.currentTime);
@@ -72,35 +75,46 @@ document.addEventListener("DOMContentLoaded", function () {
     function scheduleNextBeat() {
         if (!isPlaying) return;
         
-        let beatsPerMeasure = parseInt(beatsInput.value, 10);
-        let interval = (60.0 / currentTempo);
+        const beatsPerMeasure = parseInt(beatsInput.value, 10);
+        subdivisionValue = parseInt(subdivisionSelect.value, 10);
+        const interval = (60.0 / currentTempo) / subdivisionValue;
 
         nextNoteTime += interval;
         
-        // Handle tempo changes at the start of a measure
-        if (currentBeat === 0) {
-            if (isPracticeMode && measureCount > 0 && measureCount % parseInt(increaseTempoInput.value, 10) === 0) {
-                currentTempo += parseInt(increaseAmountInput.value, 10);
-                if (currentTempo > parseInt(finalTempoInput.value, 10)) {
-                    currentTempo = parseInt(finalTempoInput.value, 10);
-                }
-                tempoDisplay.textContent = currentTempo;
-                tempoSlider.value = currentTempo;
-                resetAnimation(tempoDisplayContainer, 'tempo-change');
-                console.log("Tempo increased to: " + currentTempo);
-            }
-            resetAnimation(beatBoxesContainer, 'measure-start');
-        }
-
-        playClick(currentBeat === 0);
-        highlightBeat(currentBeat);
+        const isMainBeat = currentSubdivision === 0;
+        const isDownbeat = currentBeat === 0 && isMainBeat;
         
-        currentBeat = (currentBeat + 1) % beatsPerMeasure;
-        if (currentBeat === 0) {
-            measureCount++;
+        playClick(isDownbeat, isMainBeat);
+        
+        if (isMainBeat) {
+            highlightBeat(currentBeat);
+            // Handle measure changes and tempo updates
+            if (currentBeat === 0) {
+                if (isPracticeMode && measureCount > 0 && 
+                    measureCount % parseInt(increaseTempoInput.value, 10) === 0) {
+                    currentTempo += parseInt(increaseAmountInput.value, 10);
+                    if (currentTempo > parseInt(finalTempoInput.value, 10)) {
+                        currentTempo = parseInt(finalTempoInput.value, 10);
+                    }
+                    tempoDisplay.textContent = currentTempo;
+                    tempoSlider.value = currentTempo;
+                    resetAnimation(tempoDisplayContainer, 'tempo-change');
+                    console.log("Tempo increased to: " + currentTempo);
+                }
+                resetAnimation(beatBoxesContainer, 'measure-start');
+            }
         }
 
-        scheduler = setTimeout(scheduleNextBeat, (nextNoteTime - audioContext.currentTime) * 1000);
+        currentSubdivision = (currentSubdivision + 1) % subdivisionValue;
+        if (currentSubdivision === 0) {
+            currentBeat = (currentBeat + 1) % beatsPerMeasure;
+            if (currentBeat === 0) {
+                measureCount++;
+            }
+        }
+
+        scheduler = setTimeout(scheduleNextBeat, 
+            (nextNoteTime - audioContext.currentTime) * 1000);
     }
 
     function startMetronome() {
@@ -223,6 +237,10 @@ document.addEventListener("DOMContentLoaded", function () {
     increaseTempoInput.addEventListener("input", calculateTotalPracticeTime);
     increaseAmountInput.addEventListener("input", calculateTotalPracticeTime);
     finalTempoInput.addEventListener("input", calculateTotalPracticeTime);
+    subdivisionSelect.addEventListener('change', (e) => {
+        subdivisionValue = parseInt(e.target.value, 10);
+        currentSubdivision = 0;
+    });
 
     window.startMetronome = startMetronome;
     window.stopMetronome = stopMetronome;

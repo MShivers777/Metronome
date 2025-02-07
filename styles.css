@@ -288,6 +288,19 @@ input:checked + .slider:before {
     width: 100%;
 }
 
+select#subdivision {
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
+    background-color: white;
+    cursor: pointer;
+}
+
+select#subdivision:hover {
+    border-color: #3498db;
+}
+
 /* Mobile optimization */
 @media (max-width: 480px) {
     body {
@@ -362,6 +375,11 @@ input:checked + .slider:before {
 
     .practice-mode {
         padding: 1rem;
+    }
+
+    select#subdivision {
+        padding: 0.3rem;
+        font-size: 0.9rem;
     }
 }
 
