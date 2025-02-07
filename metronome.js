@@ -13,6 +13,8 @@ document.addEventListener("DOMContentLoaded", function () {
     const practiceSettings = document.getElementById("practice-settings");
     const tempoDisplay = document.getElementById("tempo-display");
     const tempoSlider = document.getElementById("tempo-slider");
+    const beatBoxesContainer = document.getElementById('beatBoxes');
+    const tempoDisplayContainer = document.querySelector('.tempo-display');
     
     let audioContext = new (window.AudioContext || window.webkitAudioContext)();
     let isPlaying = false;
@@ -43,6 +45,12 @@ document.addEventListener("DOMContentLoaded", function () {
         osc.stop(audioContext.currentTime + 0.1);
     }
 
+    function resetAnimation(element, className) {
+        element.classList.remove(className);
+        void element.offsetWidth; // Trigger reflow
+        element.classList.add(className);
+    }
+
     function scheduleNextBeat() {
         if (!isPlaying) return;
         
@@ -50,21 +58,28 @@ document.addEventListener("DOMContentLoaded", function () {
         let interval = (60.0 / currentTempo);
 
         nextNoteTime += interval;
-        playClick(currentBeat === 0);
-        highlightBeat(currentBeat);
         
-        currentBeat = (currentBeat + 1) % beatsPerMeasure;
+        // Handle tempo changes at the start of a measure
         if (currentBeat === 0) {
-            measureCount++;
-            if (isPracticeMode && measureCount % parseInt(increaseTempoInput.value, 10) === 0) {
+            if (isPracticeMode && measureCount > 0 && measureCount % parseInt(increaseTempoInput.value, 10) === 0) {
                 currentTempo += parseInt(increaseAmountInput.value, 10);
                 if (currentTempo > parseInt(finalTempoInput.value, 10)) {
                     currentTempo = parseInt(finalTempoInput.value, 10);
                 }
                 tempoDisplay.textContent = currentTempo;
                 tempoSlider.value = currentTempo;
+                resetAnimation(tempoDisplayContainer, 'tempo-change');
                 console.log("Tempo increased to: " + currentTempo);
             }
+            resetAnimation(beatBoxesContainer, 'measure-start');
+        }
+
+        playClick(currentBeat === 0);
+        highlightBeat(currentBeat);
+        
+        currentBeat = (currentBeat + 1) % beatsPerMeasure;
+        if (currentBeat === 0) {
+            measureCount++;
         }
 
         scheduler = setTimeout(scheduleNextBeat, (nextNoteTime - audioContext.currentTime) * 1000);
