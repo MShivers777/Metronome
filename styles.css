@@ -65,7 +65,8 @@ h2 {
     flex: 1;
     min-width: 12px;
     border-radius: 8px;
-    background-color: #ecf0f1;
+    background-color: #cce4ff; /* changed to a light blue shade */
+    border: 1px solid #99ccff; /* blue-toned border */
     transition: background-color 0.1s ease;
 }
 
@@ -96,7 +97,7 @@ h2 {
 }
 
 .beat-box.active {
-    background-color: #3498db;
+    background-color: #1a75ff; /* active beat: a contrasting blue */
 }
 
 .subdivision-container {
@@ -115,13 +116,13 @@ h2 {
 .subdivision-box {
     flex: 1;
     width: 100%;
-    background-color: rgba(236, 240, 241, 0.5);
+    background-color: #cce4ff; /* now same shade as beat box */
     border-radius: 4px;
     transition: background-color 0.1s ease;
 }
 
 .subdivision-box.active {
-    background-color: rgba(52, 152, 219, 0.7);
+    background-color: #1a75ff; /* active subdivision box same as active beat */
 }
 
 /* Adjust subdivision box heights */

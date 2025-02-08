@@ -262,7 +262,21 @@ document.addEventListener("DOMContentLoaded", function () {
 
     document.getElementById('beats').addEventListener('input', updateBeatBoxes);
     updateBeatBoxes();
-    
+
+    // Enforce min/max limits for practice mode inputs
+    [startTempoInput, finalTempoInput, increaseTempoInput, increaseAmountInput].forEach(input => {
+        input.addEventListener('change', () => {
+            const min = parseInt(input.min, 10);
+            const max = parseInt(input.max, 10);
+            let value = parseInt(input.value, 10);
+            if (value < min) {
+                input.value = min;
+            } else if (value > max) {
+                input.value = max;
+            }
+        });
+    });
+
     startButton.addEventListener("click", startMetronome);
     stopButton.addEventListener("click", stopMetronome);
     practiceSlider.addEventListener("change", togglePracticeMode);
