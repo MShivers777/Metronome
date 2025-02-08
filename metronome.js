@@ -86,8 +86,10 @@ document.addEventListener("DOMContentLoaded", function () {
         
         playClick(isDownbeat, isMainBeat);
         
+        // Always update highlight (main beat and subdivisions)
+        highlightBeat(currentBeat);
+        
         if (isMainBeat) {
-            highlightBeat(currentBeat);
             // Handle measure changes and tempo updates
             if (currentBeat === 0) {
                 if (isPracticeMode && measureCount > 0 && 
@@ -168,19 +170,50 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function highlightBeat(beat) {
-        document.querySelectorAll(".beat-box").forEach((b, index) => {
-            b.classList.toggle("active", index === beat);
-        });
+        const subdivisionType = parseInt(subdivisionSelect.value, 10);
+        const beatBoxes = document.querySelectorAll(".beat-box");
+
+        // Clear all highlights first
+        beatBoxes.forEach(box => box.classList.remove('active'));
+
+        // Calculate the index of the current box that should be highlighted
+        let activeBoxIndex = beat;
+        if (subdivisionType > 1) {
+            const subdivCount = subdivisionType - 1;
+            activeBoxIndex = beat * (subdivCount + 1) + currentSubdivision;
+        }
+
+        // Highlight the appropriate box
+        if (activeBoxIndex < beatBoxes.length) {
+            beatBoxes[activeBoxIndex].classList.add('active');
+        }
     }
 
     function updateBeatBoxes() {
-        const beats = document.getElementById('beats').value;
+        const beats = parseInt(beatsInput.value, 10);
+        const subdivisionType = parseInt(subdivisionSelect.value, 10);
         const beatBoxes = document.getElementById('beatBoxes');
         beatBoxes.innerHTML = '';
+        beatBoxes.dataset.subdivision = subdivisionType; // Add subdivision type as data attribute
+
+        const subdivCount = subdivisionType - 1; // Number of subdivisions per beat
+
         for (let i = 0; i < beats; i++) {
+            // Create main beat box
             const box = document.createElement('div');
-            box.className = 'beat-box';
+            box.className = 'beat-box main-beat';
             beatBoxes.appendChild(box);
+
+            // Always add subdivision boxes if subdivisions exist, even for the last beat
+            if (subdivCount > 0) {
+                for (let j = 0; j < subdivCount; j++) {
+                    const subBox = document.createElement('div');
+                    subBox.className = 'beat-box subdivision-box';
+                    subBox.dataset.subdivision = j + 1;
+                    subBox.dataset.mainBeat = i;
+                    beatBoxes.appendChild(subBox);
+                }
+            }
         }
     }
 
@@ -240,6 +273,7 @@ document.addEventListener("DOMContentLoaded", function () {
     subdivisionSelect.addEventListener('change', (e) => {
         subdivisionValue = parseInt(e.target.value, 10);
         currentSubdivision = 0;
+        updateBeatBoxes(); // Rebuild beat boxes when subdivision changes
     });
 
     window.startMetronome = startMetronome;

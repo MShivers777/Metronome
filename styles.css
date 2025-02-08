@@ -51,26 +51,90 @@ h2 {
 .beat-boxes {
     display: flex;
     justify-content: center;
-    gap: 0.25rem;  /* Reduced from 0.5rem */
+    align-items: flex-start;  /* Align at top to maintain heights */
+    gap: 0.25rem;
     margin: 1rem 0;
-    padding: 1rem 1.2rem;  /* Increased padding */
+    padding: 1rem 1.2rem;
     border-radius: 12px;
     width: 100%;
     max-width: 500px;
-    flex-wrap: nowrap;  /* Ensure boxes stay in one line */
 }
 
+/* Base styles for all boxes */
 .beat-box {
     flex: 1;
-    min-width: 12px;  /* Reduced from 20px */
-    height: 100px;     /* Increased from 40px */
+    min-width: 12px;
     border-radius: 8px;
     background-color: #ecf0f1;
     transition: background-color 0.1s ease;
 }
 
+/* Main beat specific styles */
+.beat-box.main-beat {
+    height: 100px;
+}
+
+/* Subdivision specific styles */
+.beat-box.subdivision-box {
+    opacity: 0.8;
+}
+
+/* Height adjustments for different subdivision types */
+.beat-boxes[data-subdivision="2"] .subdivision-box {
+    height: 66px;  /* 66% of 100px */
+    margin-top: 17px;  /* Centers the subdivision box */
+}
+
+.beat-boxes[data-subdivision="3"] .subdivision-box {
+    height: 50px;  /* 50% of 100px */
+    margin-top: 25px;
+}
+
+.beat-boxes[data-subdivision="4"] .subdivision-box {
+    height: 33px;  /* 33% of 100px */
+    margin-top: 33px;
+}
+
 .beat-box.active {
     background-color: #3498db;
+}
+
+.subdivision-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: row;
+    padding: 4px;
+    gap: 4px;
+    pointer-events: none;  /* Allow clicks to pass through */
+}
+
+.subdivision-box {
+    flex: 1;
+    width: 100%;
+    background-color: rgba(236, 240, 241, 0.5);
+    border-radius: 4px;
+    transition: background-color 0.1s ease;
+}
+
+.subdivision-box.active {
+    background-color: rgba(52, 152, 219, 0.7);
+}
+
+/* Adjust subdivision box heights */
+.subdivision-eighth .subdivision-box {
+    height: 66%;
+}
+
+.subdivision-triplet .subdivision-box {
+    height: 50%;
+}
+
+.subdivision-sixteenth .subdivision-box {
+    height: 33%;
 }
 
 .beat-boxes.running {
@@ -361,6 +425,27 @@ select#subdivision:hover {
     .beat-box {
         height: 75px;    /* Increased from 30px */
         min-width: 8px;  /* Reduced from 15px */
+        gap: 1px;
+        padding: 1px;
+    }
+
+    .beat-box.main-beat {
+        height: 75px;
+    }
+
+    .beat-boxes[data-subdivision="2"] .subdivision-box {
+        height: 49px;  /* 66% of 75px */
+        margin-top: 13px;
+    }
+
+    .beat-boxes[data-subdivision="3"] .subdivision-box {
+        height: 37px;  /* 50% of 75px */
+        margin-top: 19px;
+    }
+
+    .beat-boxes[data-subdivision="4"] .subdivision-box {
+        height: 25px;  /* 33% of 75px */
+        margin-top: 25px;
     }
 
     button {
@@ -419,5 +504,26 @@ select#subdivision:hover {
     .beat-box {
         height: 62px;    /* Increased from 25px */
         min-width: 6px;  /* Reduced from 12px */
+        gap: 1px;
+        padding: 1px;
+    }
+
+    .beat-box.main-beat {
+        height: 62px;
+    }
+
+    .beat-boxes[data-subdivision="2"] .subdivision-box {
+        height: 41px;  /* 66% of 62px */
+        margin-top: 10px;
+    }
+
+    .beat-boxes[data-subdivision="3"] .subdivision-box {
+        height: 31px;  /* 50% of 62px */
+        margin-top: 15px;
+    }
+
+    .beat-boxes[data-subdivision="4"] .subdivision-box {
+        height: 20px;  /* 33% of 62px */
+        margin-top: 21px;
     }
 }
