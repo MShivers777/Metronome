@@ -1,4 +1,4 @@
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", async function () {
     console.log("Metronome loaded");
 
     const startButton = document.getElementById("start");
@@ -17,6 +17,14 @@ document.addEventListener("DOMContentLoaded", function () {
     const tempoDisplayContainer = document.querySelector('.tempo-display');
     const subdivisionSelect = document.getElementById("subdivision");
     
+    // NEW: Polyrhythm elements & state variables
+    const polyModeCheckbox = document.getElementById("polyMode");
+    const polyBeatsInput = document.getElementById("poly-beats");
+    const polyBeatBoxesContainer = document.getElementById("polyBeatBoxes");
+    const polyBeatGroupContainer = document.getElementById("poly-beats-group");
+    let polyEnabled = false;
+    let polyGlobalBeat = 0; // counts main beats for poly timing
+
     let audioContext = new (window.AudioContext || window.webkitAudioContext)();
     let isPlaying = false;
     let isPracticeMode = false;
@@ -28,16 +36,26 @@ document.addEventListener("DOMContentLoaded", function () {
     let currentSubdivision = 0;
     let subdivisionValue = 1;
 
+    // NEW: poly beats per measure (will be read from polyBeatsInput)
+    let polyBeats = parseInt(polyBeatsInput.value, 10) || 3;
+
     // Initialize currentTempo with the slider value
     currentTempo = parseInt(tempoSlider.value, 10);
 
-    // Add mobile detection
-    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    function playClick(frequency) {
+        const osc = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        osc.connect(gainNode);
+        gainNode.connect(audioContext.destination);
 
-    // Pre-load audio for mobile devices
-    const clickHigh = new Audio('data:audio/wav;base64,UklGRjIAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQ4AAABkAGQAAABkAAAAZABkAA==');
-    const clickLow = new Audio('data:audio/wav;base64,UklGRjIAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQYAAAA5ADkAAAA5AAAAOQA5AA==');
-    const clickSub = new Audio('data:audio/wav;base64,UklGRjIAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQ4AAAAAAQAAAAEAAAABAAAAAQAx');
+        osc.type = 'sine';
+        osc.frequency.value = frequency;
+        gainNode.gain.setValueAtTime(1, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.1);
+        
+        osc.start(audioContext.currentTime);
+        osc.stop(audioContext.currentTime + 0.1);
+    }
 
     function resumeAudioContext() {
         if (audioContext.state === "suspended") {
@@ -45,26 +63,9 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    function playClick(isDownbeat, isMainBeat) {
-        if (isMobile) {
-            const click = isDownbeat ? clickHigh : (isMainBeat ? clickLow : clickSub);
-            click.currentTime = 0;
-            click.play().catch(error => console.log("Audio playback failed:", error));
-        } else {
-            const osc = audioContext.createOscillator();
-            const gainNode = audioContext.createGain();
-            osc.connect(gainNode);
-            gainNode.connect(audioContext.destination);
-
-            // Different frequencies for different types of beats
-            osc.frequency.value = isDownbeat ? 880 : (isMainBeat ? 440 : 660);
-            gainNode.gain.setValueAtTime(isMainBeat ? 1 : 0.7, audioContext.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.1);
-            
-            osc.start(audioContext.currentTime);
-            osc.stop(audioContext.currentTime + 0.1);
-        }
-    }
+    // Ensure audio context is resumed on user interaction
+    document.addEventListener('click', resumeAudioContext);
+    document.addEventListener('touchstart', resumeAudioContext);
 
     function resetAnimation(element, className) {
         element.classList.remove(className);
@@ -84,11 +85,23 @@ document.addEventListener("DOMContentLoaded", function () {
         const isMainBeat = currentSubdivision === 0;
         const isDownbeat = currentBeat === 0 && isMainBeat;
         
-        playClick(isDownbeat, isMainBeat);
+        if (isDownbeat) {
+            playClick(880); // High frequency for downbeat
+        } else if (isMainBeat) {
+            playClick(440); // Medium frequency for main beat
+        } else {
+            playClick(660); // Low frequency for subdivision
+        }
         
         // Always update highlight (main beat and subdivisions)
         highlightBeat(currentBeat);
         
+        // NEW: When a main beat occurs, update poly beats too
+        if (isMainBeat && polyEnabled) {
+            polyGlobalBeat++;
+            highlightPolyBeat();
+        }
+
         if (isMainBeat) {
             // Handle measure changes and tempo updates
             if (currentBeat === 0) {
@@ -123,9 +136,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (isPlaying) return;
         
         // Ensure audio context is running
-        if (!isMobile) {
-            resumeAudioContext();
-        }
+        resumeAudioContext();
 
         isPlaying = true;
         currentBeat = 0;
@@ -142,6 +153,7 @@ document.addEventListener("DOMContentLoaded", function () {
         tempoSlider.value = currentTempo;
         
         measureCount = 0;
+        polyGlobalBeat = 0; // reset poly counter
         scheduleNextBeat();
         
         startButton.disabled = true;
@@ -217,6 +229,29 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
+    // NEW: Update poly beat boxes to display one box per beat, with no subdivisions
+    function updatePolyBeatBoxes() {
+        polyBeatBoxesContainer.innerHTML = '';
+        const polyCount = parseInt(polyBeatsInput.value, 10) || 3;
+        for (let i = 0; i < polyCount; i++) {
+            const box = document.createElement('div');
+            box.className = 'beat-box main-beat';
+            box.style.flex = `1 0 ${(100 / polyCount)}%`; // Ensure equal width for poly beats
+            polyBeatBoxesContainer.appendChild(box);
+        }
+    }
+
+    // NEW: Highlight poly beat boxes without using subdivision offsets
+    function highlightPolyBeat() {
+        const polyBoxes = polyBeatBoxesContainer.querySelectorAll(".beat-box");
+        polyBoxes.forEach(box => box.classList.remove('active'));
+        const polyCount = polyBoxes.length;
+        const activeIndex = polyGlobalBeat % polyCount;
+        if (activeIndex < polyBoxes.length) {
+            polyBoxes[activeIndex].classList.add('active');
+        }
+    }
+
     function updateStartTempo() {
         updateTempoDisplay(startTempoInput.value);
         tempoSlider.value = startTempoInput.value;
@@ -276,6 +311,30 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         });
     });
+
+    // NEW: Listen for changes on the polyrhythm switch and poly beats input
+    polyModeCheckbox.addEventListener('change', () => {
+        polyEnabled = polyModeCheckbox.checked;
+        const displayStyle = polyEnabled ? "block" : "none";
+        polyBeatGroupContainer.style.display = displayStyle;
+        polyBeatBoxesContainer.style.display = displayStyle;
+        if (polyEnabled) {
+            updatePolyBeatBoxes();
+        }
+    });
+    polyBeatsInput.addEventListener('change', () => {
+        polyBeats = parseInt(polyBeatsInput.value, 10) || 3;
+        updatePolyBeatBoxes();
+    });
+    subdivisionSelect.addEventListener('change', () => {
+        subdivisionValue = parseInt(subdivisionSelect.value, 10);
+        currentSubdivision = 0;
+        updateBeatBoxes();
+        if(polyEnabled) updatePolyBeatBoxes();
+    });
+    beatsInput.addEventListener('input', updateBeatBoxes);
+    polyBeatsInput.addEventListener('input', updatePolyBeatBoxes);
+    updateBeatBoxes();
 
     startButton.addEventListener("click", startMetronome);
     stopButton.addEventListener("click", stopMetronome);

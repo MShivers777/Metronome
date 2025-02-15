@@ -41,6 +41,19 @@
 
             <div id="beatBoxes" class="beat-boxes"></div>
 
+            <div class="polyrhythm-toggle">
+                <label class="switch">
+                    <input type="checkbox" id="polyMode">
+                    <span class="slider"></span>
+                </label>
+                <span>Polyrhythm Mode</span>
+            </div>
+            <div class="input-group poly-beats-group" id="poly-beats-group" style="display:none;">
+                <label for="poly-beats">Polyrhythm Beats per Measure:</label>
+                <input type="number" id="poly-beats" value="3" min="1" max="12">
+            </div>
+            <div id="polyBeatBoxes" class="beat-boxes" style="display:none;"></div>
+
             <div class="controls">
                 <button id="start">Start</button>
                 <button id="stop">Stop</button>

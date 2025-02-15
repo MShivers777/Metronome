@@ -366,6 +366,12 @@ select#subdivision:hover {
     border-color: #3498db;
 }
 
+#polyBeatBoxes {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
 /* Mobile optimization */
 @media (max-width: 480px) {
     body {
