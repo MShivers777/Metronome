@@ -233,12 +233,22 @@ document.addEventListener("DOMContentLoaded", async function () {
     function updatePolyBeatBoxes() {
         polyBeatBoxesContainer.innerHTML = '';
         const polyCount = parseInt(polyBeatsInput.value, 10) || 3;
+        polyBeatBoxesContainer.dataset.subdivision = '1'; // No subdivisions for poly beats
+        
+        // Create container div to hold the boxes in a single row
+        const boxesContainer = document.createElement('div');
+        boxesContainer.style.display = 'flex';
+        boxesContainer.style.width = '100%';
+        boxesContainer.style.gap = '0.25rem';
+        
         for (let i = 0; i < polyCount; i++) {
             const box = document.createElement('div');
             box.className = 'beat-box main-beat';
-            box.style.flex = `1 0 ${(100 / polyCount)}%`; // Ensure equal width for poly beats
-            polyBeatBoxesContainer.appendChild(box);
+            box.style.flex = '1';
+            boxesContainer.appendChild(box);
         }
+        
+        polyBeatBoxesContainer.appendChild(boxesContainer);
     }
 
     // NEW: Highlight poly beat boxes without using subdivision offsets

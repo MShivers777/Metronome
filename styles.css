@@ -366,10 +366,26 @@ select#subdivision:hover {
     border-color: #3498db;
 }
 
+/* Update the polyrhythm container to match the main beat boxes */
 #polyBeatBoxes {
     display: flex;
+    flex-wrap: nowrap;  /* Prevent wrapping to new lines */
     flex-direction: row;
-    justify-content: space-between;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 0.25rem;
+    margin: 1rem 0;
+    padding: 1rem 1.2rem;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 500px;
+    height: auto;  /* Let height be determined by content */
+}
+
+#polyBeatBoxes .beat-box {
+    height: 100px;  /* Match the height of main beat boxes */
+    flex: 1;
+    min-width: 12px;
 }
 
 /* Mobile optimization */
