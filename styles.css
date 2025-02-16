@@ -31,8 +31,6 @@ h2 {
     text-align: center;
 }
 
-#span
-
 
 
 .beat {
@@ -276,6 +274,7 @@ input[type="number"] {
     border: 1px solid #ddd;
     border-radius: 4px;
     font-size: 1rem;
+    width: 65px;
 }
 
 .input-group {
