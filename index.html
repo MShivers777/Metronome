@@ -23,13 +23,18 @@
                    value="120">
         </div>
 
+        <div id="beatBoxes" class="beat-boxes"></div>
+        <div id="polyBeatBoxes" class="beat-boxes" style="display:none;"></div>
+
+        <div class="controls">
+            <button id="start">Start</button>
+            <button id="stop">Stop</button>
+        </div>
+
         <div class="main-controls">
             <div class="input-group">
                 <label for="beats">Beats per Measure:</label>
                 <input type="number" id="beats" value="4">
-            </div>
-
-            <div class="input-group">
                 <label for="subdivision">Subdivision:</label>
                 <select id="subdivision">
                     <option value="1">None</option>
@@ -39,7 +44,7 @@
                 </select>
             </div>
 
-            <div id="beatBoxes" class="beat-boxes"></div>
+            
 
             <div class="polyrhythm-toggle">
                 <label class="switch">
@@ -52,12 +57,9 @@
                 <label for="poly-beats">Polyrhythm Beats per Measure:</label>
                 <input type="number" id="poly-beats" value="3" min="1" max="12">
             </div>
-            <div id="polyBeatBoxes" class="beat-boxes" style="display:none;"></div>
+            
 
-            <div class="controls">
-                <button id="start">Start</button>
-                <button id="stop">Stop</button>
-            </div>
+            
 
             <div class="practice-toggle">
                 <label class="switch">
