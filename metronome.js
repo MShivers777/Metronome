@@ -24,6 +24,8 @@ document.addEventListener("DOMContentLoaded", async function () {
     const polyBeatGroupContainer = document.getElementById("poly-beats-group");
     let polyEnabled = false;
     let polyGlobalBeat = 0; // counts main beats for poly timing
+    let polyNextNoteTime = 0; // next note time for polyrhythm
+    let polyCurrentBeat = 0; // current beat for polyrhythm
 
     let audioContext = new (window.AudioContext || window.webkitAudioContext)();
     let isPlaying = false;
@@ -31,6 +33,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     let currentBeat = 0;
     let nextNoteTime = 0;
     let scheduler;
+    let polyScheduler;
     let currentTempo;
     let measureCount = 0;
     let currentSubdivision = 0;
@@ -96,12 +99,6 @@ document.addEventListener("DOMContentLoaded", async function () {
         // Always update highlight (main beat and subdivisions)
         highlightBeat(currentBeat);
         
-        // NEW: When a main beat occurs, update poly beats too
-        if (isMainBeat && polyEnabled) {
-            polyGlobalBeat++;
-            highlightPolyBeat();
-        }
-
         if (isMainBeat) {
             // Handle measure changes and tempo updates
             if (currentBeat === 0) {
@@ -117,6 +114,9 @@ document.addEventListener("DOMContentLoaded", async function () {
                     console.log("Tempo increased to: " + currentTempo);
                 }
                 resetAnimation(beatBoxesContainer, 'measure-start');
+                if (polyEnabled) {
+                    resetAnimation(polyBeatBoxesContainer, 'measure-start');
+                }
             }
         }
 
@@ -130,6 +130,21 @@ document.addEventListener("DOMContentLoaded", async function () {
 
         scheduler = setTimeout(scheduleNextBeat, 
             (nextNoteTime - audioContext.currentTime) * 1000);
+    }
+
+    function scheduleNextPolyBeat() {
+        if (!isPlaying || !polyEnabled) return;
+
+        const polyInterval = (60.0 / currentTempo) * (parseInt(beatsInput.value, 10) / polyBeats);
+        polyNextNoteTime += polyInterval;
+
+        playClick(660); // Low frequency for polyrhythm beat
+        highlightPolyBeat();
+
+        polyCurrentBeat = (polyCurrentBeat + 1) % polyBeats;
+
+        polyScheduler = setTimeout(scheduleNextPolyBeat, 
+            (polyNextNoteTime - audioContext.currentTime) * 1000);
     }
 
     function startMetronome() {
@@ -154,7 +169,12 @@ document.addEventListener("DOMContentLoaded", async function () {
         
         measureCount = 0;
         polyGlobalBeat = 0; // reset poly counter
+        polyNextNoteTime = nextNoteTime; // sync poly next note time with main next note time
+        polyCurrentBeat = 0; // reset poly beat counter
         scheduleNextBeat();
+        if (polyEnabled) {
+            scheduleNextPolyBeat();
+        }
         
         startButton.disabled = true;
         stopButton.disabled = false;
@@ -163,6 +183,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     function stopMetronome() {
         isPlaying = false;
         clearTimeout(scheduler);
+        clearTimeout(polyScheduler);
         startButton.disabled = false;
         stopButton.disabled = true;
     }
@@ -256,7 +277,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         const polyBoxes = polyBeatBoxesContainer.querySelectorAll(".beat-box");
         polyBoxes.forEach(box => box.classList.remove('active'));
         const polyCount = polyBoxes.length;
-        const activeIndex = polyGlobalBeat % polyCount;
+        const activeIndex = polyCurrentBeat % polyCount;
         if (activeIndex < polyBoxes.length) {
             polyBoxes[activeIndex].classList.add('active');
         }
