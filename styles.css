@@ -53,7 +53,7 @@ h2 {
     justify-content: center;
     align-items: flex-start;  /* Align at top to maintain heights */
     gap: 0.25rem;
-    margin: 1rem 0;
+    margin: 0.25rem 0;  /* Further reduce the margin to make the gap smaller */
     padding: 1rem 1.2rem;
     border-radius: 12px;
     width: 100%;
@@ -150,6 +150,24 @@ h2 {
 }
 
 .beat-boxes.measure-start::before {
+    content: '';
+    position: absolute;
+    top: -10px;
+    left: -10px;
+    right: -10px;
+    bottom: -10px;
+    border-radius: 16px;
+    z-index: -1;
+    animation: inherit;
+}
+
+/* Add similar styles for the polyrhythm container */
+#polyBeatBoxes.measure-start {
+    animation: measureBlink 0.5s ease-out;
+    position: relative;  /* Added for pseudo-element positioning */
+}
+
+#polyBeatBoxes.measure-start::before {
     content: '';
     position: absolute;
     top: -10px;
@@ -374,18 +392,12 @@ select#subdivision:hover {
     justify-content: center;
     align-items: flex-start;
     gap: 0.25rem;
-    margin: 1rem 0;
+    margin: 0.25rem 0;  /* Further reduce the margin to make the gap smaller */
     padding: 1rem 1.2rem;
     border-radius: 12px;
     width: 100%;
     max-width: 500px;
     height: auto;  /* Let height be determined by content */
-}
-
-#polyBeatBoxes .beat-box {
-    height: 100px;  /* Match the height of main beat boxes */
-    flex: 1;
-    min-width: 12px;
 }
 
 /* Mobile optimization */

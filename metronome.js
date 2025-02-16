@@ -1,4 +1,4 @@
-document.addEventListener("DOMContentLoaded", async function () {
+document.addEventListener("DOMContentLoaded", function () {
     console.log("Metronome loaded");
 
     const startButton = document.getElementById("start");
@@ -42,20 +42,13 @@ document.addEventListener("DOMContentLoaded", async function () {
     // Initialize currentTempo with the slider value
     currentTempo = parseInt(tempoSlider.value, 10);
 
-    function playClick(frequency) {
-        const osc = audioContext.createOscillator();
-        const gainNode = audioContext.createGain();
-        osc.connect(gainNode);
-        gainNode.connect(audioContext.destination);
+    // Add mobile detection
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
-        osc.type = 'sine';
-        osc.frequency.value = frequency;
-        gainNode.gain.setValueAtTime(1, audioContext.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.1);
-        
-        osc.start(audioContext.currentTime);
-        osc.stop(audioContext.currentTime + 0.1);
-    }
+    // Pre-load audio for mobile devices
+    const clickHigh = new Audio('data:audio/wav;base64,UklGRjIAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQ4AAABkAGQAAABkAAAAZABkAA==');
+    const clickLow = new Audio('data:audio/wav;base64,UklGRjIAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQYAAAA5ADkAAAA5AAAAOQA5AA==');
+    const clickSub = new Audio('data:audio/wav;base64,UklGRjIAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQ4AAAAAAQAAAAEAAAABAAAAAQAx');
 
     function resumeAudioContext() {
         if (audioContext.state === "suspended") {
@@ -63,9 +56,26 @@ document.addEventListener("DOMContentLoaded", async function () {
         }
     }
 
-    // Ensure audio context is resumed on user interaction
-    document.addEventListener('click', resumeAudioContext);
-    document.addEventListener('touchstart', resumeAudioContext);
+    function playClick(isDownbeat, isMainBeat) {
+        if (isMobile) {
+            const click = isDownbeat ? clickHigh : (isMainBeat ? clickLow : clickSub);
+            click.currentTime = 0;
+            click.play().catch(error => console.log("Audio playback failed:", error));
+        } else {
+            const osc = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            osc.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+
+            // Different frequencies for different types of beats
+            osc.frequency.value = isDownbeat ? 880 : (isMainBeat ? 440 : 660);
+            gainNode.gain.setValueAtTime(isMainBeat ? 1 : 0.7, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.1);
+            
+            osc.start(audioContext.currentTime);
+            osc.stop(audioContext.currentTime + 0.1);
+        }
+    }
 
     function resetAnimation(element, className) {
         element.classList.remove(className);
@@ -85,13 +95,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         const isMainBeat = currentSubdivision === 0;
         const isDownbeat = currentBeat === 0 && isMainBeat;
         
-        if (isDownbeat) {
-            playClick(880); // High frequency for downbeat
-        } else if (isMainBeat) {
-            playClick(440); // Medium frequency for main beat
-        } else {
-            playClick(660); // Low frequency for subdivision
-        }
+        playClick(isDownbeat, isMainBeat);
         
         // Always update highlight (main beat and subdivisions)
         highlightBeat(currentBeat);
@@ -136,7 +140,9 @@ document.addEventListener("DOMContentLoaded", async function () {
         if (isPlaying) return;
         
         // Ensure audio context is running
-        resumeAudioContext();
+        if (!isMobile) {
+            resumeAudioContext();
+        }
 
         isPlaying = true;
         currentBeat = 0;
@@ -233,22 +239,12 @@ document.addEventListener("DOMContentLoaded", async function () {
     function updatePolyBeatBoxes() {
         polyBeatBoxesContainer.innerHTML = '';
         const polyCount = parseInt(polyBeatsInput.value, 10) || 3;
-        polyBeatBoxesContainer.dataset.subdivision = '1'; // No subdivisions for poly beats
-        
-        // Create container div to hold the boxes in a single row
-        const boxesContainer = document.createElement('div');
-        boxesContainer.style.display = 'flex';
-        boxesContainer.style.width = '100%';
-        boxesContainer.style.gap = '0.25rem';
-        
         for (let i = 0; i < polyCount; i++) {
             const box = document.createElement('div');
             box.className = 'beat-box main-beat';
-            box.style.flex = '1';
-            boxesContainer.appendChild(box);
+            box.style.flexBasis = (100 / polyCount) + '%';
+            polyBeatBoxesContainer.appendChild(box);
         }
-        
-        polyBeatBoxesContainer.appendChild(boxesContainer);
     }
 
     // NEW: Highlight poly beat boxes without using subdivision offsets
